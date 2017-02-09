@@ -55,6 +55,9 @@ abstract class AbstractDevice implements UsbDevice
     /** The device speed. */
     private final int speed;
 
+    /** The usb4java device. */
+    private final Device device;
+
     /** The device configurations. */
     private List<Configuration> configurations;
 
@@ -69,7 +72,7 @@ abstract class AbstractDevice implements UsbDevice
     private DeviceHandle handle;
 
     /** The number of the currently active configuration. */
-    private byte activeConfigurationNumber = 0;
+    private volatile byte activeConfigurationNumber = 0;
 
     /** The numbers of the currently claimed interface. */
     private Set<Byte> claimedInterfaceNumbers = new HashSet<Byte>();
@@ -114,6 +117,7 @@ abstract class AbstractDevice implements UsbDevice
         this.id = id;
         this.parentId = parentId;
         this.speed = speed;
+        this.device = device;
 
         // Read device configurations
         final int numConfigurations =
@@ -146,6 +150,14 @@ abstract class AbstractDevice implements UsbDevice
         }
         this.configurations = Collections.unmodifiableList(configurations);
 
+        scanActivieConfiguration();
+    }
+
+    /**
+     * Scan the active configuration.
+     */
+    final void scanActivieConfiguration() throws UsbPlatformException
+    {
         // Determine the active configuration number
         final ConfigDescriptor configDescriptor = new ConfigDescriptor();
         final int result =

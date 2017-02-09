@@ -246,6 +246,8 @@ final class DeviceManager
 
                         // Add new device to global device list.
                         this.devices.put(id, device);
+                    } else if (device.getActiveUsbConfigurationNumber() == 0) {
+                        device.scanActivieConfiguration();
                     }
 
                     // Remember current device as "current"
